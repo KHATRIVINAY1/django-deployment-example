@@ -1,0 +1,13 @@
+{%extends 'app/base.html'%}
+{%block title%} Delete{%endblock%}
+
+{%block content%}
+<div class="jumbotron">
+    <h2>Are you sure You want to delete? {{obj}} </h2>
+</div>
+<form method="Post">
+    {%csrf_token%}
+
+    <input class ="btn btn-danger" type="submit" value="delete">
+</form>
+{%endblock%}

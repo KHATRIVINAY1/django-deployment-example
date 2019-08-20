@@ -1,0 +1,11 @@
+{%extends 'app/base.html'%}
+{%load bootstrap4%}
+{%block title%}
+ Create
+{%endblock%}
+{%block content%}
+<form method="POST">
+    {%csrf_token%}
+    {%bootstrap_form form%}
+    <input type="submit" name="submit" value="submit">
+{%endblock%}

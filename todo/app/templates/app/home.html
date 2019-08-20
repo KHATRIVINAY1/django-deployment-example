@@ -1,0 +1,30 @@
+{%extends 'app/base.html'%}
+{%block title%}
+Home
+{%endblock%}
+{%block content%}
+{%if not user.is_authenticated%}
+<div class="jumbotron">
+    <h3>Please Login Or Sign UP</h3>
+</div>
+{%else%}
+   {%if not task_list%}
+     <div class="jumbotron">
+        <h2>Please Create A New task</h2>
+      </div>
+    {%else%}
+{%for i in task_list%}
+<ul class="list-group">
+  <li class="list-group-item list-group-item-success"><h3><a href="{%url 'app:detail' i.pk %}">{{i|title}}</a> </h3> <a href="{%url 'app:delete' i.pk%}" class="btn btn-danger btn-lg">
+          <span class="glyphicon glyphicon-remove"></span> Remove
+        </a>
+    <i>Created Date: {{i.create_date|date:'D,d M,Y h:i:A'}}</i>
+</li>
+
+</ul>
+
+    {%endfor%}
+{%endif%}
+{%endif%}
+{%endblock%}
+<
