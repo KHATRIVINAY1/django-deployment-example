@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
-from django.utils import timezone
 from datetime import datetime
 # Create your models here.
 
@@ -16,3 +15,10 @@ class Task(models.Model):
 
     def __str__(self):
         return self.label
+
+class Profile(models.Model):
+    user= models.OneToOneField(User,on_delete=models.CASCADE)
+    image = models.ImageField(blank=True,default='default.jpg',upload_to='profile_pic')
+
+    def __str__(self):
+        return '{} profile'.format(self.user.username)

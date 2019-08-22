@@ -1,11 +1,13 @@
 from .models import Task
 from django.views.generic import (CreateView,UpdateView,DeleteView,ListView,DetailView)
 from django.contrib.auth.models import User
-from .forms import NewUser
+from .forms import NewUser,Profile_form
+from django.shortcuts import render
 from django.urls import reverse_lazy,reverse
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+
 # Create your views here.
 
 class CreateTask(LoginRequiredMixin,CreateView):
@@ -49,3 +51,28 @@ def deleteso(request):
     obj = Task.objects.filter(user__username=request.user)
     obj.delete()
     return HttpResponseRedirect(reverse('app:home'))
+
+@login_required()
+def showprofile(request):
+    return render(request,'app/profile_page.html',{})
+
+@login_required()
+def fillprofile(request):
+    if request.method =='POST':
+        form = Profile_form(request.POST)
+
+        if form.is_valid():
+            userp = form.save(commit=False)
+            userp.user = request.user
+
+            if 'image' in request.FILES:
+                userp.image=request.FILES['image']
+            userp.save()
+
+            return HttpResponseRedirect(reverse('app:home'))
+
+
+    else:
+        form = Profile_form()
+
+    return render(request,'app/fill.html',{'form':form})
