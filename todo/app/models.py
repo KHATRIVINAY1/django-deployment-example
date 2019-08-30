@@ -11,7 +11,7 @@ class Task(models.Model):
     create_date = models.DateTimeField(default=datetime.now())
 
     def get_absolute_url(self):
-        return reverse('app:detail',kwargs={'pk':self.pk})
+        return reverse('app:detail',args=[self.id])
 
     def __str__(self):
         return self.label

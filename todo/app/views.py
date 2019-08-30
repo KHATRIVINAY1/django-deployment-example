@@ -1,12 +1,12 @@
 from .models import Task
 from django.views.generic import (CreateView,UpdateView,DeleteView,ListView,DetailView)
 from django.contrib.auth.models import User
-from .forms import NewUser,Profile_form
-from django.shortcuts import render
+from .forms import NewUser,UpdateUser,Profile_form
+from django.shortcuts import render,redirect
 from django.urls import reverse_lazy,reverse
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin,UserPassesTestMixin
 
 # Create your views here.
 
@@ -24,27 +24,46 @@ class CreateUser(CreateView):
     template_name = 'app/register.html'
     success_url = reverse_lazy('app:login')
 
-class TaskDetail(LoginRequiredMixin,DetailView):
+class TaskDetail(LoginRequiredMixin,UserPassesTestMixin,DetailView):
     model = Task
     template_name = 'app/detail.html'
 
-class DeleteTask(LoginRequiredMixin,DeleteView):
+    def test_func(self):
+        task =self.get_object()
+        if self.request.user==task.user:
+            return True
+        return False
+
+class DeleteTask(LoginRequiredMixin,UserPassesTestMixin,DeleteView):
     model = Task
     context_object_name = 'obj'
     template_name = 'app/delete.html'
     success_url = reverse_lazy('app:home')
 
-class TaskEdit(LoginRequiredMixin,UpdateView):
+    def test_func(self):
+        task =self.get_object()
+        if self.request.user==task.user:
+            return True
+        return False
+
+class TaskEdit(LoginRequiredMixin,UserPassesTestMixin,UpdateView):
     model = Task
     template_name = 'app/create.html'
     fields = ['label', 'description']
 
+    def test_func(self):
+        task =self.get_object()
+        if self.request.user==task.user:
+            return True
+        return False
+
 class Home(ListView):
     model = Task
     template_name = 'app/home.html'
+    paginate_by = 10
 
     def get_queryset(self):
-        return Task.objects.filter(user__username=self.request.user)
+        return Task.objects.filter(user__username=self.request.user).order_by('-create_date')
 
 @login_required()
 def deleteso(request):
@@ -54,25 +73,18 @@ def deleteso(request):
 
 @login_required()
 def showprofile(request):
-    return render(request,'app/profile_page.html',{})
-
-@login_required()
-def fillprofile(request):
-    if request.method =='POST':
-        form = Profile_form(request.POST)
-
-        if form.is_valid():
-            userp = form.save(commit=False)
-            userp.user = request.user
-
-            if 'image' in request.FILES:
-                userp.image=request.FILES['image']
-            userp.save()
-
-            return HttpResponseRedirect(reverse('app:home'))
-
-
+    
+    if request.method=='POST':
+        u_form= UpdateUser(request.POST,instance=request.user)
+        p_form =Profile_form(request.POST,request.FILES,instance=request.user.profile)
+        
+        if u_form.is_valid() and p_form.is_valid():
+            u_form.save()
+            p_form.save()
+            return redirect('app:show')
+        
     else:
-        form = Profile_form()
-
-    return render(request,'app/fill.html',{'form':form})
+        u_form= UpdateUser(instance=request.user)
+        p_form=Profile_form(instance=request.user.profile)
+        
+    return render(request,'app/profile_page.html',{'u_form':u_form,'p_form':p_form})
