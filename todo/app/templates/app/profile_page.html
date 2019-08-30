@@ -1,0 +1,33 @@
+{% extends "app/base.html" %}
+{%load bootstrap4%}
+{%load staticfiles%}
+{% block content %}
+<div class ='container'>
+    <div class="jumbotron">
+
+
+
+          <img  src="{{ user.profile.image.url }}" class="rounded-circle" height="100" width="100" class="rounded float-left">
+
+          <h2 class="account-heading">{{ user.username }}</h2>
+
+          <p class="text-secondary">{{ user.email }}</p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+<div class="container">
+    <div class="jumbotron">
+        <form method="POST" enctype="multipart/form-data">
+            {%csrf_token%}
+            {%bootstrap_form u_form%}
+            {%bootstrap_form p_form%}
+            <input class="btn btn-primary" type="submit" value="Update">
+        </form>
+    </div>
+</div>
+
+{% endblock content %}
